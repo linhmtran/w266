@@ -203,6 +203,8 @@ class RNNLM(object):
             self.initial_h_ = self.cell_.zero_state(self.batch_size_, dtype=tf.float32)
             self.output_, self.final_h_= tf.nn.dynamic_rnn(self.cell_, self.x_, sequence_length= self.ns_,dtype=tf.float32)
                                                             # initial_state=self.initial_h_, dtype=tf.float32)
+            # self.initial_h_ = self.final_h_
+
 
         # Softmax output layer, over vocabulary. Just compute logits_ here.
         # Hint: the matmul3d function will be useful here; it's a drop-in
@@ -245,25 +247,47 @@ class RNNLM(object):
         # Define approximate loss function.
         # Note: self.softmax_ns (i.e. k=200) is already defined; use that as the
         # number of samples.
-            # Loss computation (sampled, for training)
 
-        with tf.name_scope("Loss_Function"):
-            # Sampled softmax loss, for training
-            self.output_ = tf.reshape(self.output_, [-1, self.batch_size_*self.max_time_])
+        with tf.name_scope("Loss"):
+            # create local var for train inputs, expanded logits tensor 
+            self.train_inputs_ = tf.reshape(self.output_, [self.batch_size_*self.max_time_,-1])
+            # self.train_inputs_ = tf.reshape(self.logits_, [-1,self.batch_size_*self.max_time_])
+
             self.per_example_train_loss_ = tf.nn.sampled_softmax_loss(weights=tf.transpose(self.W_out_),
                                                                       biases=self.b_out_,
-                                                                      labels=self.target_y_,
-                                                                      inputs=self.output_,
-                                                                      num_sampled=self.softmax_ns, num_classes=self.V,
+                                                                      # labels=self.target_y_,
+                                                                      labels=tf.reshape(self.target_y_, [-1, 1]), 
+                                                                      # labels=tf.expand_dims(tf.reshape(self.target_y_,[-1]), 1),
+                                                                      inputs=self.train_inputs_,
+                                                                      num_sampled=self.softmax_ns, 
+                                                                      num_classes=self.V,
                                                                       name="per_example_sampled_softmax_loss")
-            self.train_loss_ = tf.reduce_mean(self.per_example_train_loss_, name="sampled_softmax_loss")
+                                                                      # name="sampled_softmax_loss")
 
+            self.train_loss_ = tf.reduce_mean(self.per_example_train_loss_, name="sampled_softmax_loss")
+            # self.train_loss_ = tf.reduce_mean(self.per_example_train_loss_)
+            
+        #### From OH:####
+#         self.per_example_train_loss_ = tf.nn.sampled_softmax_loss(weights=tf.transpose(self.W_out_), 
+#                                                                   biases=self.b_out_,
+#                                                                   labels=tf.reshape(self.target_y_, [-1, 1]),
+#                                                                   inputs=tf.reshape(self.cell_output_, 
+#                                                                                     [self.batch_size_ * self.max_time_, -1]),
+#                                                                   num_sampled=self.softmax_ns,
+#                                                                   num_classes=self.V, 
+#                                                                   name='sampled_softmax_loss')
+
+#         self.train_loss_ = tf.reduce_mean(self.per_example_train_loss_)
+        
+        #################
         with tf.name_scope("Train"):
             self.optimizer_ = tf.train.AdamOptimizer(self.learning_rate_)
-            gradients, variables = zip(*optimizer.compute_gradients(self.train_loss_))
+            # self.train_step_ = optimizer_.minimize(self.train_loss_)
+            self.train_step_ = self.optimizer_.minimize(self.loss_) # is it "train_loss_"?
+            gradients, variables = zip(*self.optimizer_.compute_gradients(self.train_loss_))
             gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
-            self.train_step_ = self.optimizer_.apply_gradients(zip(gradients,variables))
-        
+            self.train_step_ = self.optimizer_.apply_gradients(zip(gradients, variables))
+
 
         #### END(YOUR CODE) ####
 
@@ -281,9 +305,12 @@ class RNNLM(object):
 
         #### YOUR CODE HERE ####
         with tf.name_scope("Predict"):
-            self.logits_ = tf.reshape(self.logits_ , [-1, self.batch_size_*self.max_time_])
-            self.pred_samples = tf.multinomial(self.logits_, 1, output_dtype=tf.int32, name="pred_samples")
-            self.pred_samples_ = tf.reshape(self.pred_samples, [self.batch_size_, self.max_time_,1])
-
+            self.pred_samples_ = tf.reshape(tf.multinomial(tf.reshape(self.logits_ , [-1, self.V]), 
+                                                          1, 
+                                                          output_dtype=tf.int32, 
+                                                          name="pred_samples"),
+                                           [self.batch_size_, self.max_time_,1])
 
         #### END(YOUR CODE) ####
+
+        
