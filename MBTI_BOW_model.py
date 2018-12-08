@@ -28,6 +28,8 @@ def embedding_layer(ids_, V, embed_dim, init_scale=0.001):
 
     W_embed_ = tf.get_variable("W_embed", shape = [V, embed_dim], initializer=tf.random_uniform_initializer(-init_scale, init_scale, dtype=tf.float32))
     xs_ = tf.nn.embedding_lookup(W_embed_, ids_)
+    
+    print("XS_shape:",xs_.shape)
 
     #### END(YOUR CODE) ####
     return xs_
@@ -59,6 +61,7 @@ def fully_connected_layers(h0_, hidden_dims, activation=tf.tanh,
         # Add dropout after each hidden layer (1-2 lines of code).
         if dropout_rate > 0:
             h_ = do_  # replace with dropout applied to h_
+    print("H shape: ",h_.shape)
 
 
         #### END(YOUR CODE) ####
@@ -114,6 +117,8 @@ def softmax_output_layer(h_, labels_, num_classes):
 
 
         #### END(YOUR CODE) ####
+        
+    print("Logits:",logits_.shape)
 
     return loss_, logits_
 
