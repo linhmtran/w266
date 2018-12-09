@@ -73,3 +73,5 @@ Test Samples:
 (9) i'll... go with that, i suppose. 
  pred:5 
  actual:5 
+Train set perplexity: 9.787 
+Test set perplexity: 9.790 
