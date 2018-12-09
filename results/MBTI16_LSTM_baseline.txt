@@ -1,77 +1,77 @@
-TRAINING PILOT 5000 
-[epoch 1] Completed 199 batches in 0:00:54
-[epoch 1] Average cost: 2.580
-[epoch 2] Completed 199 batches in 0:00:51
-[epoch 2] Average cost: 2.267
-[epoch 3] Completed 199 batches in 0:00:52
-[epoch 3] Average cost: 2.267
-[epoch 4] Completed 199 batches in 0:00:53
-[epoch 4] Average cost: 2.267
-[epoch 5] Completed 199 batches in 0:00:51
-[epoch 5] Average cost: 2.267
-Train accuracy: 0.21280000000000002
+TRAINING Full 
+[epoch 1] Completed 13531 batches in 0:29:04
+[epoch 1] Average cost: 2.355
+[epoch 2] Completed 13531 batches in 0:28:58
+[epoch 2] Average cost: 2.353
+[epoch 3] Completed 13531 batches in 0:28:51
+[epoch 3] Average cost: 2.352
+[epoch 4] Completed 13531 batches in 0:28:55
+[epoch 4] Average cost: 2.352
+[epoch 5] Completed 13531 batches in 0:28:59
+[epoch 5] Average cost: 2.353
+Train accuracy: 0.12420928170263082
 Train Samples: 
 (0) https://www.youtube.com/watch?v=bxvkaah2d7m 
- pred:3 
- actual:15 
+ pred:8 
+ actual:8 
 (1) isfjs and infps can balance each other really well, i think, if they learn to communicate - sjs choosing words (and tone of voice!) carefully, and nps learning to take things less personally. your sj... 
- pred:3 
- actual:2 
+ pred:8 
+ actual:10 
 (2) i'd seek recognition. not fame. 
- pred:3 
- actual:3 
-(3) to be honest, maybe you are giving out vibes that you are not self-assured. because if you think about it, a bully is going to go for someone they don't think will fight back, someone who is weak (i... 
- pred:3 
+ pred:8 
  actual:2 
+(3) to be honest, maybe you are giving out vibes that you are not self-assured. because if you think about it, a bully is going to go for someone they don't think will fight back, someone who is weak (i... 
+ pred:8 
+ actual:10 
 (4) probably. any thinking, really. personally, i prefer the ax-b-c-dy function stack compared to grant's. it allows for the parts where grant gets it right while still being consistent with jung, i.e.,... 
- pred:3 
- actual:7 
+ pred:8 
+ actual:12 
 (5) surely he's just complaining about all the competition. 
- pred:3 
- actual:15 
+ pred:8 
+ actual:8 
 (6) yes, and contrary to popular belief, the libido energy always comes from within and is then directed either outward (extraversion) or back inward (introversion).  lexicon of jungian terms | new... 
- pred:3 
+ pred:8 
  actual:14 
 (7) you can't or not that you can't but its hypocritical to talk about the moral degradation of america when your face is full of botox, which shows a preoccupation with appearance rather then character.... 
- pred:3 
- actual:1 
+ pred:8 
+ actual:5 
 (8) is it fair to say that infps seem to be really good at idea generation but may have trouble deciding with which idea to settle on?  i guess that's ne?  case in point- i'm dating an infp gal and when... 
- pred:3 
- actual:3 
+ pred:8 
+ actual:2 
 (9) hmm. i don't know the full story with enfj female, but i can think of plenty of reasons as to why he would stop pursuing her and talking about her. she probably showed in some way that she was not... 
- pred:3 
- actual:1 
-Test accuracy: 0.20400000000000001
+ pred:8 
+ actual:5 
+Test accuracy: 0.12386203463136114
 Test Samples: 
 (0) just wanted to thank everyone for their very insightful replies :)      yeah, i think he is confused about my actions. perhaps i do appear hot and cold sometimes, though i've been pretty... 
- pred:3 
- actual:3 
+ pred:8 
+ actual:2 
 (1) wow...the 2nd one is particularly gross..... 
- pred:3 
- actual:1 
+ pred:8 
+ actual:5 
 (2) **something weird happened; could i get this deleted?  not sure how to go about this.  @birdsintrees ?   also posted in the wrong forum before this here:  ... 
- pred:3 
- actual:1 
+ pred:8 
+ actual:5 
 (3) i do not spend much time gaming, though i have in the past. i also tend to play good characters. my characters tend to be of either the chaotic or lawful good variety, if you will forgive the ad&d... 
- pred:3 
- actual:1 
+ pred:8 
+ actual:5 
 (4) lord huron. :) 
- pred:3 
- actual:3 
+ pred:8 
+ actual:2 
 (5) im too busy worrying if the fb friends dislike me than whether i am interesting :sad: 
- pred:3 
- actual:3 
+ pred:8 
+ actual:2 
 (6) thanks for the ideas everybody! if i had to answer my own questions, i'd want my wedding to be like this...   what was your theme? rustic - near the woods  how old were you and your spouse?... 
- pred:3 
- actual:3 
+ pred:8 
+ actual:2 
 (7) is it just me or are people being kinda hostile in this thread? 
- pred:3 
- actual:7 
+ pred:8 
+ actual:12 
 (8) :( unhealthy habits are really hard to break............why :((((((( 
- pred:3 
- actual:7 
+ pred:8 
+ actual:12 
 (9) i'll... go with that, i suppose. 
- pred:3 
- actual:3 
-Train set perplexity: 9.665 
-Test set perplexity: 9.898
+ pred:8 
+ actual:2 
+Train set perplexity: 10.958 
+Test set perplexity: 10.965
