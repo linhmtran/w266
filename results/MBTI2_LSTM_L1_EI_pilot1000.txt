@@ -74,4 +74,4 @@ Test Samples:
  pred:1 
  actual:1 
 Train set perplexity: 1.707 
-Test set perplexity: 1.715
+Test set perplexity: 1.715/n Average precision-recall score: 0.15

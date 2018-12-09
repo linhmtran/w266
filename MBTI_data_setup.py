@@ -83,4 +83,4 @@ def label_to_id(mbti_type, label_train, label_test):
 
     y_test_id = np.array([label_map[label] for label in label_test])
     
-    return y_train_id, y_test_id
+    return y_train_id, y_test_id, label_map

@@ -1,11 +1,11 @@
 
 # coding: utf-8
 
-# # Baseline LSTM MBTI Classification Model
+# # MBTI Binary N/S Classification w/ 1 Layer LSTM
 # 
 # First, load libraries and useful functions from class:
 
-# In[65]:
+# In[37]:
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -30,14 +30,14 @@ import MBTI_data_setup as ds
 
 # ## Load Corpus & Pre-Process
 
-# In[66]:
+# In[38]:
 
 #load data
 df = pd.read_csv('./mbti_1.csv')
 df.head(5)
 
 
-# In[67]:
+# In[39]:
 
 reload(ds)
 post, mbti_type, user = ds.splitPosts(df)
@@ -72,17 +72,51 @@ print(y_train[:2])
 print(y_test[:2])
 
 
+# In[40]:
+
+# 4 dichotomomies: {Attitude: E/I, Information: N/S , Decision: F/T, Structure: J/P }
+mbti_map = {'E':0, 'I':1, 'N':2, 'S':3, 'F':4, 'T':5, 'J':6,'P':7 } # indicates the the index column for each type
+
+# split type string --> ['I' 'N' 'T' 'P']
+dichotomy_train = np.array([list(mbti_type) for mbti_type in label_train])
+dichotomy_test = np.array([list(mbti_type) for mbti_type in label_test])
+
+# convert dichotomy indicators to index value --> [1 2 5 7]
+y_train_id = np.array([list(map(lambda x: mbti_map[x],ind)) for ind in dichotomy_train])
+y_test_id = np.array([list(map(lambda x: mbti_map[x],ind)) for ind in dichotomy_test])
+
+# create 1-hot vector with MBTI dichotomies, map index value to 1 --> [0,1,1,0,1,0,1,0]
+one_hot_train = np.zeros((len(y_train_id),8),dtype=int)
+one_hot_test = np.zeros((len(y_test_id),8),dtype=int)
+for i in range(4):
+    one_hot_train[np.arange(len(dichotomy_train)), y_train_id[:,i]] = 1
+    one_hot_test[np.arange(len(dichotomy_test)), y_test_id[:,i]] = 1
+y_train = one_hot_train
+y_test = one_hot_test
+
+y_train = y_train[:,2:4]
+print("Example Y Train one hot for Training: ", y_train[:5])
+y_train_id = y_train_id[:,1]-2
+print("Example Y Train ID for Accuracy Scoring: ", y_train_id[:5])
+
+
+y_test = y_test[:,2:4]
+print("Example Y Test one hot for Testing: ", y_test[:5])
+y_test_id = y_test_id[:,1]-2
+print("Example Y Train ID for Accuracy Scoring: ", y_test_id[:5])
+
+
 # ## Bulid the LSTM Model
 
-# In[68]:
+# In[41]:
 
 # Model Parameters
 V = vocab_mbti.size
-classes = 16 #len(set(labels))
+classes = 2 #len(set(labels))
 batch_size = 25
 text_length = 70 # max sentence is 66
 embed_dim = 50 #256
-hidden_dims = 50 #
+hidden_dims = 100 #
 num_layers = 1
 
 # Training Parameters
@@ -92,7 +126,7 @@ learning_rate = .001
 num_epochs = 5
 
 
-# In[69]:
+# In[42]:
 
 # useful functions for building LSTM
 def MakeFancyRNNCell(hidden_dims, keep_prob, layers=1, isTrain=True):
@@ -122,7 +156,7 @@ def MakeFancyRNNCell(hidden_dims, keep_prob, layers=1, isTrain=True):
     return tf.nn.rnn_cell.MultiRNNCell(cells)
 
 
-# In[70]:
+# In[43]:
 
 tf.reset_default_graph()
 tf.set_random_seed(88)
@@ -223,7 +257,7 @@ with tf.name_scope("Train"):
 init_ = tf.global_variables_initializer()
 
 
-# In[71]:
+# In[44]:
 
 # w
 summary_writer = tf.summary.FileWriter("tf_graph", tf.get_default_graph())
@@ -231,7 +265,7 @@ summary_writer = tf.summary.FileWriter("tf_graph", tf.get_default_graph())
 
 # ## Train Model
 
-# In[72]:
+# In[45]:
 
 # create batched arrays of size batch_size based on input x and input y
 def pad_np_array(example_ids, max_len=text_length, pad_id=0):
@@ -260,7 +294,7 @@ def train_batch(session, xbatch, ybatch, learning_rate):
     return c
 
 
-# In[73]:
+# In[46]:
 
 print_interval = 1000
 
@@ -270,8 +304,8 @@ session = tf.Session()
 session.run(init_)
 
 t0 = time.time()
-# open('results/MBTI16_LSTM_baseline_pilot1000.txt', 'w').close()
-# with open('results/MBTI16_LSTM_baseline_pilot1000.txt', 'a') as f:
+# open('results/MBTI2_LSTM_L1_NS_100HD_pilot1000.txt', 'w').close()
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot1000.txt', 'a') as f:
 #     f.write('TRAINING PILOT 1000 \n')
 #     for epoch in range(1,num_epochs+1):
 #         t0_epoch = time.time()
@@ -291,8 +325,8 @@ t0 = time.time()
 #         print("[epoch %d] Completed %d batches in %s" % (epoch, i, utils.pretty_timedelta(since=t0_epoch)))
 #         print("[epoch %d] Average cost: %.03f" % (epoch, avg_cost,))
         
-# open('results/MBTI16_LSTM_baseline_pilot5000.txt', 'w').close()
-# with open('results/MBTI16_LSTM_baseline_pilot5000.txt', 'a') as f:
+# # open('results/MBTI2_LSTM_L1_NS_100HD_pilot5000.txt', 'w').close()
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot5000.txt', 'a') as f:
 #     f.write('TRAINING PILOT 5000 \n')
 #     for epoch in range(1,num_epochs+1):
 #         t0_epoch = time.time()
@@ -312,8 +346,8 @@ t0 = time.time()
 #         print("[epoch %d] Completed %d batches in %s" % (epoch, i, utils.pretty_timedelta(since=t0_epoch)))
 #         print("[epoch %d] Average cost: %.03f" % (epoch, avg_cost,))
 
-open('results/MBTI16_LSTM_baseline.txt', 'w').close()
-with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
+open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'w').close()
+with open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'a') as f:
     f.write('TRAINING Full \n')
     for epoch in range(1,num_epochs+1):
         t0_epoch = time.time()
@@ -336,7 +370,7 @@ with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
 
 # ## Evaluate Model
 
-# In[74]:
+# In[47]:
 
 def predict_type(session,x):
     inputs = {x_text_:x,#np array of texts
@@ -345,23 +379,24 @@ def predict_type(session,x):
     return pred # batch x 1
 
 
-# In[75]:
+# In[48]:
 
 # Accuracy on train set
 train_accuracy=[]
 preds = []
 
 # # pilot 1K
-# with open('results/MBTI16_LSTM_baseline_pilot1000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot1000.txt', 'a') as f:
 #     for i, (x,y) in enumerate(batch_generator(x_train[:1000], y_train_id[:1000], batch_size)):
 
 # # pilot 5k
-# with open('results/MBTI16_LSTM_baseline_pilot5000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot5000.txt', 'a') as f:
 #     for i, (x,y) in enumerate(batch_generator(x_train[:5000], y_train_id[:5000], batch_size)): 
 
 # Full
-with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
+with open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'a') as f:
     for i, (x,y) in enumerate(batch_generator(x_train, y_train_id, batch_size)):
+        
         pred = predict_type(session,x)
         train_accuracy.append((pred[0] == y).mean())
         preds.append(pred[0])
@@ -373,23 +408,24 @@ with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
         f.write("(%s) %s \n pred:%s \n actual:%s \n" % (i,sentence,preds[0][i-1],y_train_id[i-1]))
 
 
-# In[76]:
+# In[49]:
 
 # Accuray on test set
 test_accuracy = []
 preds = []
 
 # # Pilot 1K
-# with open('results/MBTI16_LSTM_baseline_pilot1000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot1000.txt', 'a') as f:
 #     for i, (x,y) in enumerate(batch_generator(x_test[:200], y_test_id[:200], batch_size)):
 
 # # Pilot 5K
-# with open('results/MBTI16_LSTM_baseline_pilot5000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot5000.txt', 'a') as f:
 #     for i, (x,y) in enumerate(batch_generator(x_test[:1000], y_test_id[:1000], batch_size)):
 
 # Full
-with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
+with open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'a') as f:
     for i, (x,y) in enumerate(batch_generator(x_test, y_test_id, batch_size)):
+        
         pred = predict_type(session,x)
         test_accuracy.append((pred[0] == y).mean())
         preds.append(pred[0])
@@ -400,7 +436,7 @@ with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
         f.write("(%s) %s \n pred:%s \n actual:%s \n" % (i,sentence,preds[0][i],y_test_id[i]))
 
 
-# In[77]:
+# In[50]:
 
 def score_batch(session, x, y):
     feed_dict = {x_text_:x,
@@ -417,16 +453,16 @@ def score_dataset(x, y):
     return total_cost / total_batches
 
 
-# In[78]:
+# In[51]:
 
 # #for pilot 1K
 # train_perp = np.exp(score_dataset(x_train[:1000],y_train[:1000]))
 # test_perp = np.exp(score_dataset(x_test[:200],y_train[:200]))
 # print ("Train set perplexity: %.03f" % train_perp)
 # print ("Test set perplexity: %.03f" % test_perp)
-# with open('results/MBTI16_LSTM_baseline_pilot1000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot1000.txt', 'a') as f:
 #     f.write("Train set perplexity: %.03f \n" % train_perp)
-#     f.write("Test set perplexity: %.03f" % test_perp)
+#     f.write("Test set perplexity: %.03f \n" % test_perp)
     
     
 # # for pilot 5K
@@ -434,7 +470,7 @@ def score_dataset(x, y):
 # test_perp = np.exp(score_dataset(x_test[:1000],y_train[:1000]))
 # print ("Train set perplexity: %.03f" % train_perp)
 # print ("Test set perplexity: %.03f" % test_perp)
-# with open('results/MBTI16_LSTM_baseline_pilot5000.txt', 'a') as f:
+# with open('results/MBTI2_LSTM_L1_NS_100HD_pilot5000.txt', 'a') as f:
 #     f.write("Train set perplexity: %.03f \n" % train_perp)
 #     f.write("Test set perplexity: %.03f" % test_perp)
     
@@ -444,76 +480,22 @@ train_perp = np.exp(score_dataset(x_train,y_train))
 test_perp = np.exp(score_dataset(x_test,y_test))
 print ("Train set perplexity: %.03f" % train_perp)
 print ("Test set perplexity: %.03f" % test_perp)
-with open('results/MBTI16_LSTM_baseline.txt', 'a') as f:
+with open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'a') as f:
     f.write("Train set perplexity: %.03f \n" % train_perp)
-    f.write("Test set perplexity: %.03f \n" % test_perp)
+    f.write("Test set perplexity: %.03f" % test_perp)
 
 
-# In[89]:
+# In[55]:
 
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
+from sklearn.metrics import average_precision_score
 
-
-def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
-
-    print(cm)
-
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, format(cm[i, j], fmt),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-    plt.tight_layout()
-
-
-class_names = label_map.keys()
-
-# Compute confusion matrix
 test_predictions = np.array(preds).flatten()
 true = y_test_id
-cnf_matrix = confusion_matrix(true,test_predictions)
-np.set_printoptions(precision=2)
 
-# Plot non-normalized confusion matrix
-fig1 = plt.figure()
-plot_confusion_matrix(cnf_matrix, classes=class_names,
-                      title='Confusion matrix, without normalization')
-
-
-plt.show()
-fig1.savefig('results/mbti16-baseline-confusion.png')
-
-# Plot normalized confusion matrix
-fig2 = plt.figure()
-plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
-                      title='Normalized confusion matrix')
-
-plt.show()
-fig2.savefig('results/mbti16-baseline-confusion-norm.png')
+average_precision = average_precision_score(true, test_predictions)
+with open('results/MBTI2_LSTM_L1_NS_100HD.txt', 'a') as f:
+    f.write('\n Average precision-recall score: {0:0.2f}'.format(average_precision))
+    print('Average precision-recall score: {0:0.2f}'.format(average_precision))
 
 
 # In[ ]:
